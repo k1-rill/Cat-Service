@@ -10,7 +10,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.k1-rill</groupId>
-    <artifactId>lab4</artifactId>
+    <artifactId>k1-rill</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
