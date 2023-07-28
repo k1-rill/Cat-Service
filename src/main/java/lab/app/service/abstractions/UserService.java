@@ -1,12 +1,13 @@
 package lab.app.service.abstractions;
+import lab.app.dto.UserDTO;
 import lab.app.entities.User;
 
 import java.util.List;
 
 public interface UserService {
-    User save(User user);
+    UserDTO save(User user);
     void deleteById(long id);
-    User update(long id, User user);
-    List<User> getAll();
-    User getById(long id);
+    UserDTO update(long id, User user);
+    List<UserDTO> getAll();
+    UserDTO getById(long id);
 }

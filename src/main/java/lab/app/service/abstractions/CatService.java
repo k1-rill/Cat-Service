@@ -1,13 +1,14 @@
 package lab.app.service.abstractions;
 
+import lab.app.dto.CatDTO;
 import lab.app.entities.Cat;
 
 import java.util.List;
 
 public interface CatService {
-    Cat save(Cat cat);
+    CatDTO save(Cat cat);
     void deleteById(long id);
-    Cat update(long id, Cat cat);
-    List<Cat> getAll();
-    Cat getById(long id);
+    CatDTO update(long id, Cat cat);
+    List<CatDTO> getAll();
+    CatDTO getById(long id);
 }

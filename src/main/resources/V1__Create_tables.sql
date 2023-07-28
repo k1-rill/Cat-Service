@@ -13,3 +13,4 @@ create table if not exists cats(
     CONSTRAINT valid_color CHECK (cat_color IN ('белый', 'рыжий', 'коричневый', 'серый', 'черный'))
 );
 
+

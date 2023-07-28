@@ -1,50 +1,79 @@
 package lab.app.service.implementations;
 
+import lab.app.dto.OwnerDTO;
+import lab.app.entities.Cat;
 import lab.app.entities.Owner;
+import lab.app.mappers.OwnerEntityMapper;
+import lab.app.repository.CatRepository;
 import lab.app.repository.OwnerRepository;
 import lab.app.service.abstractions.OwnerService;
+import lab.app.tools.CatServiceException;
+import lab.app.tools.OwnerServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class OwnerServiceImpl implements OwnerService {
     private final OwnerRepository ownerRepository;
 
+    private final CatRepository catRepository;
+
+    private final OwnerEntityMapper mapper;
+
     @Autowired
-    public OwnerServiceImpl(OwnerRepository ownerRepository){
+    public OwnerServiceImpl(OwnerRepository ownerRepository, CatRepository catRepository, OwnerEntityMapper mapper){
         this.ownerRepository = ownerRepository;
+        this.catRepository = catRepository;
+        this.mapper = mapper;
     }
 
     @Override
-    public Owner save(Owner owner) {
-        return ownerRepository.save(owner);
+    public OwnerDTO save(Owner owner) {
+        return mapper.toDto(ownerRepository.save(owner));
     }
 
     @Override
-    public void deleteById(long id) {
+    public void deleteById(long id) throws OwnerServiceException {
+        Optional<Owner> owner = ownerRepository.findById(id);
+
+        if (owner.isEmpty())
+            throw new OwnerServiceException(String.format("no such owner to delete: %s", owner.get().getId()));
+
         ownerRepository.deleteById(id);
     }
 
     @Override
-    public Owner update(long id, Owner owner) {
-        Owner newOwner = new Owner();
-        newOwner = ownerRepository.findById(id).orElseThrow();
-        if (newOwner == null)
-            return null;
+    public OwnerDTO update(long id, Owner owner) throws OwnerServiceException{
+        Optional<Owner> person = ownerRepository.findById(id);
 
-        newOwner.setName(newOwner.getName());
-        return ownerRepository.save(newOwner);
+        if (person.isEmpty())
+            throw new OwnerServiceException(String.format("no such owner to update: %s", owner.getId()));
+
+        person.get().setName(owner.getName());
+        person.get().setDate(owner.getDate());
+
+        return mapper.toDto(person.get());
     }
 
     @Override
-    public List<Owner> getAll() {
-        return ownerRepository.findAll();
+    public List<OwnerDTO> getAll() {
+        return ownerRepository
+                .findAll()
+                .stream()
+                .map(mapper::toDto)
+                .toList();
     }
 
     @Override
-    public Owner getById(long id) {
-        return ownerRepository.findById(id).orElseThrow();
+    public OwnerDTO getById(long id) throws OwnerServiceException {
+        Optional<Owner> owner = ownerRepository.findById(id);
+
+        if (owner.isEmpty())
+            throw new OwnerServiceException(String.format("no such owner to get: %s", owner.get().getId()));
+
+        return mapper.toDto(owner.get());
     }
 }

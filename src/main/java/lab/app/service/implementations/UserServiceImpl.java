@@ -1,53 +1,81 @@
 package lab.app.service.implementations;
 
+import lab.app.dto.UserDTO;
+import lab.app.entities.Owner;
 import lab.app.entities.User;
+import lab.app.mappers.UserEntityMapper;
 import lab.app.repository.UserRepository;
 import lab.app.service.abstractions.UserService;
+import lab.app.tools.OwnerServiceException;
+import lab.app.tools.UserServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+
     private PasswordEncoder passwordEncoder;
+
+    private final UserEntityMapper mapper;
+
     @Autowired
-    public UserServiceImpl(UserRepository userRepository){
+    public UserServiceImpl(UserRepository userRepository, UserEntityMapper mapper){
         this.userRepository = userRepository;
-    }
-    @Override
-    public User save(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
+        this.mapper = mapper;
     }
 
     @Override
-    public void deleteById(long id) {
+    public UserDTO save(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return mapper.toDto(userRepository.save(user));
+    }
+
+    @Override
+    public void deleteById(long id) throws UserServiceException {
+        Optional<User> user = userRepository.findById(id);
+
+        if (user.isEmpty())
+            throw new UserServiceException(String.format("no such user to delete: %s", user.get().getId()));
+
         userRepository.deleteById(id);
     }
 
     @Override
-    public User update(long id, User user) {
-        User newUser;
-        newUser = userRepository.findById(id).orElseThrow();
-        if (newUser == null)
-            return null;
-        newUser.setLogin(user.getLogin());
-        newUser.setPassword(user.getPassword());
-        newUser.setRole(user.getRole());
-        return userRepository.save(newUser);
+    public UserDTO update(long id, User user) throws UserServiceException {
+        Optional<User> somebody = userRepository.findById(id);
+
+        if (somebody.isEmpty())
+            throw new UserServiceException(String.format("no such user to delete: %s", id));
+
+        somebody.get().setPassword(user.getPassword());
+        somebody.get().setRole(user.getRole());
+        somebody.get().setLogin(user.getLogin());
+
+        return mapper.toDto(userRepository.save(somebody.get()));
     }
 
     @Override
-    public List<User> getAll() {
-        return userRepository.findAll();
+    public List<UserDTO> getAll() {
+        return userRepository
+                .findAll()
+                .stream()
+                .map(mapper::toDto)
+                .toList();
     }
 
     @Override
-    public User getById(long id) {
-        return userRepository.findById(id).orElseThrow();
+    public UserDTO getById(long id) throws UserServiceException {
+        Optional<User> user = userRepository.findById(id);
+
+        if (user.isEmpty())
+            throw new UserServiceException(String.format("no such user to delete: %s", id));
+
+        return mapper.toDto(user.get());
     }
 }

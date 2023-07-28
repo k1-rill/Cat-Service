@@ -11,13 +11,18 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.CascadeType;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "cats")
-public class Cat {
+public @Data class Cat {
     @Column(name = "cat_name")
     private String name;
 
@@ -39,56 +44,4 @@ public class Cat {
     @JoinColumn(name = "cat_owner")
     private Owner catOwner;
 
-    @OneToMany(mappedBy = "cat", cascade = CascadeType.ALL)
-    private List<Flea> fleas;
-    public Cat(){
-
-    }
-    public Cat(String name, LocalDate date, String breed, String color, Owner owner){
-        this.name = name;
-        this.date = date;
-        this.breed = breed;
-        this.color = color;
-        this.catOwner = owner;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setCat_id(long id){
-        this.id = id;
-    }
-
-    public LocalDate getDate() {
-        return date;
-    }
-
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
-
-    public String getBreed() {
-        return breed;
-    }
-
-    public void setBreed(String breed) {
-        this.breed = breed;
-    }
-
-    public String getColor() {
-        return color;
-    }
-
-    public void setColor(String color) {
-        this.color = color;
-    }
 }
